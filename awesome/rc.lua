@@ -90,8 +90,8 @@ local layouts = {
 
 -- {{{ Tags
 tags = {
-   names = { "web", "tg", "emacs", "media", "other"},
-   layout = { layouts[1], layouts[1], layouts[1], layouts[1], layouts[1], layouts[1] }
+   names = { "web", "chromium", "emacs", "tg", "terminal" , "media", "other"},
+   layout = { layouts[1], layouts[1], layouts[1], layouts[1], layouts[1], layouts[1], layouts[1] }
 }
 for s = 1, screen.count() do
 -- Each screen has its own tag table.
@@ -154,7 +154,8 @@ fswidget = lain.widgets.fs({
     end
 })
 
---[[ Mail IMAP check
+--[[ 
+Mail IMAP check
 -- commented because it needs to be set before use
 mailicon = wibox.widget.imagebox()
 mailicon:buttons(awful.util.table.join(awful.button({ }, 1, function () awful.util.spawn(mail) end)))
@@ -239,7 +240,7 @@ netupinfo = lain.widgets.net({
 net_wireless = net_widgets.wireless({
     interface = "wlp2s0",
     popup_signal = true,
-    onclick     = terminal .. " -e sudo wifi-menu"
+    onclick     = terminal .. " -e sudo wicd-client -n"
 })
 net_wired = net_widgets.indicator({
      interfaces  = {"enp1s0f1", "another_interface", "and_another_one"},
@@ -446,6 +447,10 @@ globalkeys = awful.util.table.join(
     awful.key({ altkey }, "Left", function () lain.util.tag_view_nonempty(-1) end),
     awful.key({ altkey }, "Right", function () lain.util.tag_view_nonempty(1) end),
 
+  
+   -- dmenu-extended (AUR) see comments on https://aur.archlinux.org/packages/dmenu-extended/
+   awful.key({ modkey }, "p", function () awful.util.spawn("dmenu_extended_run") end),
+
     -- Default client focus
     awful.key({ altkey }, "k",
         function ()
@@ -527,7 +532,14 @@ globalkeys = awful.util.table.join(
     awful.key({ altkey,           }, "c",      function () lain.widgets.calendar:show(7) end),
     awful.key({ altkey,           }, "h",      function () fswidget.show(7) end),
     awful.key({ altkey,           }, "t",      function () myweather.show(7) end),
-    awful.key({ }, "Print", function () awful.util.spawn("scrot -e 'mv $f ~/screenshots/ 2>/dev/null'") end),
+
+    -- Personal 
+    -- ScreenLock
+    awful.key({ modkey            }, "l", function () awful.util.spawn("xscreensaver-command -lock") end),
+    awful.key({ }, "Print", function () awful.util.spawn("scrot -e 'mv $f ~/Imágenes/ 2>/dev/null'") end),
+-- Screenshot
+   awful.key({ "Shift", "Control"}, "F12", function() awful.util.spawn_with_shell("sleep 0.5 && scrot -s /home/ashida/Imágenes/$(date '+%Y-%m-%d-%H:%M:%S').jpg") end),
+
 
     -- ALSA volume control
     awful.key({ altkey }, "Up",
@@ -686,18 +698,22 @@ awful.rules.rules = {
     { rule = { instance = "plugin-container" },
           properties = { tag = tags[1][1] } },
 
-	  { rule = { class = "Gimp" },
-     	    properties = { tag = tags[1][4] } },
+--	  { rule = { class = "Gimp" },
+--     	    properties = { tag = tags[1][4] } },
 
-    { rule = { class = "Gimp", role = "gimp-image-window" },
-          properties = { maximized_horizontal = true,
-                         maximized_vertical = true } },
+--    { rule = { class = "Gimp", role = "gimp-image-window" },
+--          properties = { maximized_horizontal = true,
+--                         maximized_vertical = true } },
     {rule = { class = "Firefox" },
      properties = { tag = tags[1][1] }},
-    {rule = { class = "Telegram" },
+    {rule = { class = "chromium" },
      properties = { tag = tags[1][2] }},
     {rule = { class = "Emacs" },
      properties = { tag = tags[1][3] }},
+    {rule = { class = "telegram-desktop" },
+     properties = { tag = tags[1][4] }},
+    {rule = { class = "Gnome-terminal" },
+     properties = { tag = tags[1][5] }},
 }
 -- }}}
 
@@ -821,9 +837,12 @@ do
       {
          "xscreensaver -nosplash",
          "guake",
-         "telegram",
+         "telegram-desktop",
          "firefox",
-         "emacs"
+         "emacs",
+         "dropbox",  
+         "gnome-terminal",
+         "chromium"
       }
    
    for _,i in pairs(cmds) do

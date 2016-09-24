@@ -89,13 +89,28 @@ local layouts = {
 -- }}}
 
 -- {{{ Tags
-tags = {
-   names = { "web", "chromium", "emacs", "tg", "terminal" , "media", "other"},
-   layout = { layouts[1], layouts[1], layouts[1], layouts[1], layouts[1], layouts[1], layouts[1] }
-}
-for s = 1, screen.count() do
--- Each screen has its own tag table.
-   tags[s] = awful.tag(tags.names, s, tags.layout)
+if screen.count() == 2 then
+
+  tags = {
+    names = { "chromium", "emacs", "terminal", "DDBB" , "tg", "slack"},
+    layout = { layouts[6], layouts[6], layouts[6], layouts[6], layouts[6], layouts[6] }
+  }
+  tags2 = {
+    names = { "firefox", "emacs", "terminal", "media", "other"},
+    layout = { layouts[6], layouts[6], layouts[6], layouts[6], layouts[6] }
+  }
+
+  tags[1] = awful.tag(tags.names, 1, tags.layout)
+  tags2[2] = awful.tag(tags2.names, 2, tags2.layout)
+else
+  tags = {
+    names = { "firefox", "emacs", "terminal", "tg" , "media", "other"},
+    layout = { layouts[6], layouts[6], layouts[6], layouts[6], layouts[6], layouts[6] }
+  }
+  for s = 1, screen.count() do
+    -- Each screen has its own tag table.
+    tags[s] = awful.tag(tags.names, s, tags.layout)
+  end
 end
 -- }}}
 
@@ -680,6 +695,47 @@ root.keys(globalkeys)
 -- }}}
 
 -- {{{ Rules
+if screen.count() == 2 then
+awful.rules.rules = {
+    -- All clients will match this rule.
+    { rule = { },
+      properties = { border_width = beautiful.border_width,
+                     border_color = beautiful.border_normal,
+                     focus = awful.client.focus.filter,
+                     keys = clientkeys,
+                     buttons = clientbuttons,
+	                   size_hints_honor = false } },
+    { rule = { class = "URxvt" },
+          properties = { opacity = 0.99 } },
+
+    { rule = { class = "Firefox" },
+          properties = { tag = tags[1][1] } },
+
+    { rule = { instance = "plugin-container" },
+          properties = { tag = tags[1][1] } },
+
+--	  { rule = { class = "Gimp" },
+--     	    properties = { tag = tags[1][4] } },
+
+--    { rule = { class = "Gimp", role = "gimp-image-window" },
+--          properties = { maximized_horizontal = true,
+--                         maximized_vertical = true } },
+    {rule = { class = "Firefox" },
+     properties = { tag = tags2[1][1] }},
+    {rule = { class = "chromium" },
+     properties = { tag = tags[1][1] }},
+    {rule = { class = "Emacs" },
+     properties = { tag = tags2[1][2] }},
+    {rule = { class = "telegram-desktop" },
+     properties = { tag = tags[1][5] }},
+    {rule = { class = "Gnome-terminal" },
+     properties = { tag = tags[1][3] }},
+    {rule = { class = "slack" },
+     properties = { tag = tags[1][6] }},
+    {rule = { class = "spotify" },
+     properties = { tag = tags2[1][4] }},
+}
+else
 awful.rules.rules = {
     -- All clients will match this rule.
     { rule = { },
@@ -706,15 +762,16 @@ awful.rules.rules = {
 --                         maximized_vertical = true } },
     {rule = { class = "Firefox" },
      properties = { tag = tags[1][1] }},
-    {rule = { class = "chromium" },
-     properties = { tag = tags[1][2] }},
     {rule = { class = "Emacs" },
-     properties = { tag = tags[1][3] }},
+     properties = { tag = tags[1][2] }},
     {rule = { class = "telegram-desktop" },
      properties = { tag = tags[1][4] }},
     {rule = { class = "Gnome-terminal" },
+     properties = { tag = tags[1][3] }},
+    {rule = { class = "spotify" },
      properties = { tag = tags[1][5] }},
 }
+end
 -- }}}
 
 -- {{{ Signals
@@ -842,11 +899,32 @@ do
          "emacs",
          "dropbox",  
          "gnome-terminal",
+         "gnome-terminal",
+         "gnome-terminal",
+         "gnome-terminal",
+      }
+   local cmds2 =
+      {
+         "xscreensaver -nosplash",
+         "guake",
+         "telegram-desktop",
+         "firefox",
+         "emacs",
+         "dropbox",  
+         "gnome-terminal",
+         "gnome-terminal",
+         "gnome-terminal",
+         "gnome-terminal",
          "chromium"
       }
-   
-   for _,i in pairs(cmds) do
-      awful.util.spawn(i)
+   if screen.count() == 2 then
+     for _,i in pairs(cmds2) do
+       awful.util.spawn(i)
+     end
+   else
+     for _,i in pairs(cmds) do
+       awful.util.spawn(i)
+     end
    end
 end
 
